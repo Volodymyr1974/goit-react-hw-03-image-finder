@@ -1,7 +1,9 @@
 import React, { Component } from "react";
 import style from './Searchbar.module.css';
-// import PropTypes from 'prop-types';
+import PropTypes from 'prop-types';
 import { ImSearch } from 'react-icons/im';
+import Notiflix from 'notiflix';
+
 
 
 class Searchbar extends Component {
@@ -9,14 +11,16 @@ class Searchbar extends Component {
         searchText: '',
     }
     searchInput = (e) => {
-        console.log(e.currentTarget.value);
+
         this.setState({ searchText: e.currentTarget.value.toLowerCase() });
     };
     searchSubmit = (e) => {
         e.preventDefault();
+        if (this.state.searchText.trim() === '') {
+            return Notiflix.Notify.failure('Вибачте, поле пошуку не заповнено. Введіть запит для пошуку.');
+        }
         this.props.onSubmit(this.state.searchText)
         this.setState({ searchText: '' });
-
     }
     render() {
         return (
@@ -44,5 +48,8 @@ class Searchbar extends Component {
 
 
     }
-}
+};
+Searchbar.propTypes = {
+    onSubmit: PropTypes.func.isRequired,
+};
 export default Searchbar;

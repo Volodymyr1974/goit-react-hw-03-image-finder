@@ -2,10 +2,11 @@ import Button from "components/Button/Button";
 import { Component } from "react";
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
 import fetchGallery from '../service/ApiService';
-// import * as basicLightbox from 'basiclightbox';
 import Modal from '../Modal/Modal';
 import style from './ImageGallery.module.css';
-
+import PropTypes from 'prop-types';
+import Notiflix from 'notiflix';
+import Loader from "../Loader/Loader";
 
 
 class ImageGallery extends Component {
@@ -13,7 +14,9 @@ class ImageGallery extends Component {
         ImageGallery: [],
         showModal: false,
         largeImageURL: '',
-        tags: ''
+        tags: '',
+        status: 'idle',
+        error: null,
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -22,18 +25,26 @@ class ImageGallery extends Component {
             prevProps.searchQwery !== searchQwery ||
             prevProps.pageNumber !== pageNumber
         ) {
-            console.log(searchQwery, pageNumber);
+            this.setState({ status: 'pending' });
             fetchGallery(searchQwery, pageNumber)
                 .then(gallery => {
+                    if (!gallery.hits.length) {
+                        this.setState({
+                            status: 'idle',
+                        });
+                        Notiflix.Notify.warning(`Ух...Щось пішло не так, або дані за Вашим запитом відсутні`)
+                        return;
+                    }
+
                     if (prevProps.searchQwery !== searchQwery) {
                         this.setState({ ImageGallery: [...gallery.hits] });
-                    } else {
-
-                        this.setState({ ImageGallery: [...this.state.ImageGallery, ...gallery.hits] });
-                        console.log(this.state);
                     }
-                }
-                );
+                    else {
+                        this.setState({ ImageGallery: [...this.state.ImageGallery, ...gallery.hits] });
+                    }
+                    this.setState({ status: 'resolved' });
+                })
+                .catch(error => this.setState({ error, status: 'rejected' }))
         };
     };
     toggleModal = () => {
@@ -51,30 +62,36 @@ class ImageGallery extends Component {
 
     }
     render() {
-        console.log(this.state);
-        const { ImageGallery, showModal, largeImageURL,
-            tags } = this.state;
+        const { ImageGallery, showModal, largeImageURL, tags, status, error } = this.state;
         return (
             <>
-                <ul className={style.ImageGallery}>
-                    <ImageGalleryItem
-                        ImageGallery={ImageGallery}
-                        onSetImage={this.onSetImage}
-                    />
-                </ul>
-                <Button onLoadMoreButtonClick={this.props.onLoadMoreBtn}></Button>
+                {ImageGallery.length > 0 && (
+                    <ul className={style.ImageGallery}>
+                        <ImageGalleryItem
+                            ImageGallery={ImageGallery}
+                            onSetImage={this.onSetImage}
+                        />
+                    </ul>)}
+                {status === 'pending' && < Loader />}
+                {status === 'resolved' && <Button onLoadMoreButtonClick={this.props.onLoadMoreBtn}></Button>}
                 {showModal && (
                     <Modal
                         onCloseModal={this.toggleModal}
                         largeImageURL={largeImageURL}
-                        tags={tags}
-                    >
-                    </Modal>
-                )}
+                        tags={tags}>
+                    </Modal>)}
+                {status === 'rejected' && Notiflix.Notify.warning(error.message)}
             </>
 
         )
 
     }
 };
+
+ImageGallery.propTypes = {
+    onLoadMoreBtn: PropTypes.func.isRequired,
+    searchQwery: PropTypes.string.isRequired,
+    pageNumber: PropTypes.number.isRequired
+};
+
 export default ImageGallery;

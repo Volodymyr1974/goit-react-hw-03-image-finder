@@ -5,7 +5,7 @@ const fetchGallery = (searchQwery, pageNumber) => {
             if (response.ok) {
                 return response.json();
             }
-            return Promise.reject(new Error(`Дані за Вашим запитом выдсутні`));
+            return Promise.reject(new Error(`Ух...Щось пішло не так, або дані за Вашим запитом відсутні`));
         });
 
 }

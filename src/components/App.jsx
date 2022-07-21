@@ -9,7 +9,6 @@ export default class App extends Component {
     page: 1,
   }
   searchTextSubmit = (searchText) => {
-    console.log(searchText);
     this.setState(
       {
         searchText,
@@ -21,7 +20,6 @@ export default class App extends Component {
       page: prevState.page + 1,
 
     }));
-    console.log(10);
   };
 
   render() {
