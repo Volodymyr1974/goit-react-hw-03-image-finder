@@ -1,16 +1,20 @@
+import style from './ImageGalleryItem.module.css';
 
-
-export function ImageGalleryItem({ ImageGallery }) {
+export default function ImageGalleryItem({ ImageGallery }) {
     return ImageGallery.map(item => {
         return (
             <li
-                key={item.id}>
-                <img
+                key={item.id}
+                className={style.ImageGalleryItem}
+            >
+                <img className={style.ImageGalleryItem_image}
                     src={item.webformatURL}
-                    alt='sdsdsd'
+                    alt={item.tags}
                 />
             </li>
         );
     });
-}
+};
+
+
 

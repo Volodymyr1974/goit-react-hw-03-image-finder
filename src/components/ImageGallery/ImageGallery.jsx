@@ -1,10 +1,18 @@
+import Button from "components/Button/Button";
 import { Component } from "react";
-// import axios from 'axios';
-import { ImageGalleryItem } from '../ImageGalleryItem/ImageGalleryItem';
+import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
+import fetchGallery from '../service/ApiService';
+// import * as basicLightbox from 'basiclightbox';
+import Modal from '../Modal/Modal';
+import style from './ImageGallery.module.css';
+
+
 
 class ImageGallery extends Component {
     state = {
         ImageGallery: [],
+        showModal: false,
+
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -13,38 +21,42 @@ class ImageGallery extends Component {
             prevProps.searchQwery !== searchQwery ||
             prevProps.pageNumber !== pageNumber
         ) {
-            console.log(searchQwery, pageNumber)
-            fetch(`https://pixabay.com/api/?key=27772870-4058b108341efce898c1dbbbe&q=${searchQwery}&image_type=photo&orientation=horizontal&safesearch=true&page=${pageNumber}&per_page=12`)
-                .then(response => response.json())
+            console.log(searchQwery, pageNumber);
+            fetchGallery(searchQwery, pageNumber)
                 .then(gallery => {
-
-                    if (
-                        prevProps.searchQwery !== searchQwery
-                    ) {
+                    if (prevProps.searchQwery !== searchQwery) {
                         this.setState({ ImageGallery: [...gallery.hits] });
-
                     } else {
-                        console.log(this.state);
-                        this.setState({ ImageGallery: [...this.state.ImageGallery, ...gallery.hits] })
-                    }
 
+                        this.setState({ ImageGallery: [...this.state.ImageGallery, ...gallery.hits] });
+                        console.log(this.state);
+                    }
                 }
                 );
-
-        }
-
-
-    }
+        };
+    };
+    toggleModal = () => {
+        this.setState(({ showModal }) => ({
+            showModal: !showModal,
+        }));
+    };
     render() {
-
+        console.log(this.state);
+        const { ImageGallery, showModal } = this.state;
         return (
+            <>
+                <ul className={style.ImageGallery}>
+                    <ImageGalleryItem
+                        ImageGallery={ImageGallery}
+                    />
+                </ul>
+                <Button onLoadMoreButtonClick={this.props.onLoadMoreBtn}></Button>
+                {showModal && (
+                    <Modal >
+                    </Modal>
+                )}
+            </>
 
-            <ul >
-                <ImageGalleryItem
-                    ImageGallery={this.state.ImageGallery}
-
-                />
-            </ul>
         )
 
     }
