@@ -12,7 +12,8 @@ class ImageGallery extends Component {
     state = {
         ImageGallery: [],
         showModal: false,
-
+        largeImageURL: '',
+        tags: ''
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -40,19 +41,34 @@ class ImageGallery extends Component {
             showModal: !showModal,
         }));
     };
+
+    onSetImage = (largeImageURL, tags) => {
+        this.setState({
+            largeImageURL,
+            tags
+        });
+        this.toggleModal();
+
+    }
     render() {
         console.log(this.state);
-        const { ImageGallery, showModal } = this.state;
+        const { ImageGallery, showModal, largeImageURL,
+            tags } = this.state;
         return (
             <>
                 <ul className={style.ImageGallery}>
                     <ImageGalleryItem
                         ImageGallery={ImageGallery}
+                        onSetImage={this.onSetImage}
                     />
                 </ul>
                 <Button onLoadMoreButtonClick={this.props.onLoadMoreBtn}></Button>
                 {showModal && (
-                    <Modal >
+                    <Modal
+                        onCloseModal={this.toggleModal}
+                        largeImageURL={largeImageURL}
+                        tags={tags}
+                    >
                     </Modal>
                 )}
             </>
