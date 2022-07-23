@@ -1,7 +1,7 @@
 import Button from "components/Button/Button";
 import { Component } from "react";
 import ImageGalleryItem from '../ImageGalleryItem/ImageGalleryItem';
-import fetchGallery from '../service/ApiService';
+import fetchGallery from '../../service/ApiService';
 import Modal from '../Modal/Modal';
 import style from './ImageGallery.module.css';
 import PropTypes from 'prop-types';
@@ -29,7 +29,16 @@ class ImageGallery extends Component {
             this.setState({ status: 'pending' });
             fetchGallery(searchQwery, pageNumber)
                 .then(gallery => {
+                    this.setState(prevState => ({
+                        ImageGallery: [...prevState.ImageGallery, ...gallery.hits],
+                        totalHits: gallery.totalHits,
+                        status: 'resolved',
+                    }));
                     console.log(prevState)
+                    console.log(this.state);
+                    if (prevProps.searchQwery !== searchQwery) {
+                        this.setState({ ImageGallery: [...gallery.hits] });
+                    }
                     if (!gallery.hits.length) {
                         this.setState({
                             status: 'idle',
@@ -37,18 +46,7 @@ class ImageGallery extends Component {
                         Notiflix.Notify.warning(`Ух...Щось пішло не так, або дані за Вашим запитом відсутні`)
                         return;
                     }
-
-                    if (prevProps.searchQwery !== searchQwery) {
-                        this.setState({ ImageGallery: [...gallery.hits] });
-                    }
-                    // else {
-                    //     this.setState({ ImageGallery: [...this.state.ImageGallery, ...gallery.hits] });
-                    // }
-                    this.setState({ status: 'resolved', totalHits: gallery.totalHits });
                     console.log(this.state.ImageGallery.length);
-                    if (this.state.ImageGallery.length > this.state.totalHits) {
-                        this.setState({ status: 'idle' })
-                    }
                 })
                 .catch(error => this.setState({ error, status: 'rejected' }))
         };
@@ -68,17 +66,19 @@ class ImageGallery extends Component {
 
     }
     render() {
-        console.log('render', this.state);
         const { ImageGallery, showModal, largeImageURL, tags, status, error, totalHits } = this.state;
-        console.log(ImageGallery.length);
         return (
             <>
                 {ImageGallery.length > 0 && (
+
                     <ul className={style.ImageGallery}>
-                        <ImageGalleryItem
-                            ImageGallery={ImageGallery}
-                            onSetImage={this.onSetImage}
-                        />
+                        {ImageGallery.map(item => (
+                            <ImageGalleryItem
+                                onSetImage={this.onSetImage}
+                                key={item.id}
+                                item={item}
+                            />
+                        ))}
                     </ul>)}
                 {status === 'pending' && < Loader />}
                 {status === 'resolved' && ImageGallery.length < totalHits && <Button onLoadMoreButtonClick={this.props.onLoadMoreBtn}></Button>}

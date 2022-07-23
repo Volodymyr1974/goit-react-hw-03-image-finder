@@ -2,16 +2,20 @@ import Searchbar from './Searchbar/Searchbar';
 import React, { Component } from "react";
 import ImageGallery from './ImageGallery/ImageGallery';
 import style from './App.module.css';
+import Notiflix from 'notiflix';
 
 export default class App extends Component {
   state = {
-    searchText: '',
+    qwery: '',
     page: 1,
   }
-  searchTextSubmit = (searchText) => {
+  searchTextSubmit = (qwery) => {
+    if (qwery === this.state.qwery) {
+      return Notiflix.Notify.failure('Вибачте, такий запит вже оброблено. Введіть інший запит для пошуку, або натисніть  "Load More');
+    }
     this.setState(
       {
-        searchText,
+        qwery,
         page: 1
       });
   };
@@ -23,12 +27,12 @@ export default class App extends Component {
   };
 
   render() {
-    const { searchText, page } = this.state;
+    const { qwery, page } = this.state;
     return (
       <div className={style.App} >
         <Searchbar onSubmit={this.searchTextSubmit} />
         <ImageGallery
-          searchQwery={searchText}
+          searchQwery={qwery}
           pageNumber={page}
           onLoadMoreBtn={this.loadMoreBtn}
         />
