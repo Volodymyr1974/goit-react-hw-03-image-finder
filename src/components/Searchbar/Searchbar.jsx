@@ -9,20 +9,28 @@ import Notiflix from 'notiflix';
 class Searchbar extends Component {
     state = {
         searchText: '',
+        qwery: '',
     }
     searchInput = (e) => {
-
-        this.setState({ searchText: e.currentTarget.value.toLowerCase() });
+        // console.log(this.state);
+        this.setState({ qwery: e.currentTarget.value.toLowerCase() });
+        // console.log(this.state);
     };
     searchSubmit = (e) => {
         e.preventDefault();
-        if (this.state.searchText.trim() === '') {
+        if (this.state.qwery.trim() === '') {
             return Notiflix.Notify.failure('Вибачте, поле пошуку не заповнено. Введіть запит для пошуку.');
         }
-        this.props.onSubmit(this.state.searchText)
-        this.setState({ searchText: '' });
+        if (this.state.searchText === this.state.qwery) {
+            return Notiflix.Notify.failure('Вибачте, такий запит вже оброблено. Введіть інший запит для пошуку, або натисніть  "Load More');
+        }
+        this.setState({ searchText: this.state.qwery });
+        console.log(this.state);
+        this.props.onSubmit(this.state.qwery)
+        // this.setState({ searchText: '' });
     }
     render() {
+        // console.log(this.state);
         return (
             <header className={style.Searchbar}>
                 <form
@@ -40,7 +48,7 @@ class Searchbar extends Component {
                         autoFocus
                         placeholder="Search images and photos"
                         onChange={this.searchInput}
-                        value={this.state.searchText}
+                        value={this.state.qwery}
                     />
                 </form>
             </header >

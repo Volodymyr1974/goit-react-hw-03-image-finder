@@ -17,6 +17,7 @@ class ImageGallery extends Component {
         tags: '',
         status: 'idle',
         error: null,
+        totalHits: null,
     }
 
     componentDidUpdate(prevProps, prevState) {
@@ -28,6 +29,7 @@ class ImageGallery extends Component {
             this.setState({ status: 'pending' });
             fetchGallery(searchQwery, pageNumber)
                 .then(gallery => {
+                    console.log(prevState)
                     if (!gallery.hits.length) {
                         this.setState({
                             status: 'idle',
@@ -39,10 +41,14 @@ class ImageGallery extends Component {
                     if (prevProps.searchQwery !== searchQwery) {
                         this.setState({ ImageGallery: [...gallery.hits] });
                     }
-                    else {
-                        this.setState({ ImageGallery: [...this.state.ImageGallery, ...gallery.hits] });
+                    // else {
+                    //     this.setState({ ImageGallery: [...this.state.ImageGallery, ...gallery.hits] });
+                    // }
+                    this.setState({ status: 'resolved', totalHits: gallery.totalHits });
+                    console.log(this.state.ImageGallery.length);
+                    if (this.state.ImageGallery.length > this.state.totalHits) {
+                        this.setState({ status: 'idle' })
                     }
-                    this.setState({ status: 'resolved' });
                 })
                 .catch(error => this.setState({ error, status: 'rejected' }))
         };
@@ -62,7 +68,9 @@ class ImageGallery extends Component {
 
     }
     render() {
-        const { ImageGallery, showModal, largeImageURL, tags, status, error } = this.state;
+        console.log('render', this.state);
+        const { ImageGallery, showModal, largeImageURL, tags, status, error, totalHits } = this.state;
+        console.log(ImageGallery.length);
         return (
             <>
                 {ImageGallery.length > 0 && (
@@ -73,7 +81,7 @@ class ImageGallery extends Component {
                         />
                     </ul>)}
                 {status === 'pending' && < Loader />}
-                {status === 'resolved' && <Button onLoadMoreButtonClick={this.props.onLoadMoreBtn}></Button>}
+                {status === 'resolved' && ImageGallery.length < totalHits && <Button onLoadMoreButtonClick={this.props.onLoadMoreBtn}></Button>}
                 {showModal && (
                     <Modal
                         onCloseModal={this.toggleModal}
