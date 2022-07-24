@@ -73,11 +73,14 @@ class ImageGallery extends Component {
 
                     <ul className={style.ImageGallery}>
                         {ImageGallery.map(item => (
-                            <ImageGalleryItem
-                                onSetImage={this.onSetImage}
-                                key={item.id}
-                                item={item}
-                            />
+                            <li key={item.id}
+                                className={style.ImageGalleryItem}>
+                                < ImageGalleryItem
+                                    onSetImage={this.onSetImage}
+
+                                    item={item}
+                                />
+                            </li>
                         ))}
                     </ul>)}
                 {status === 'pending' && < Loader />}
